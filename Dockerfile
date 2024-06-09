@@ -15,7 +15,7 @@ ENV BENTO4_BASE_URL="http://zebulon.bok.net/Bento4/source/" \
     BENTO4_PATH="/opt/bento4" \
     BENTO4_TYPE="SRC"
     # download and unzip bento4
-RUN apk add --update --upgrade python2 unzip bash gcc g++ scons && \
+RUN apk add --update --upgrade python unzip bash gcc g++ scons && \
     wget -q ${BENTO4_BASE_URL}/Bento4-${BENTO4_TYPE}-${BENTO4_VERSION}${BENTO4_TARGET}.zip && \
     sha1sum -b Bento4-${BENTO4_TYPE}-${BENTO4_VERSION}${BENTO4_TARGET}.zip | grep -o "^$BENTO4_CHECKSUM " && \
     mkdir -p ${BENTO4_PATH} && \

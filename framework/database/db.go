@@ -5,7 +5,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	_ "github.com/lib/pq"
 	"github.com/matheusvidal21/microservice-encoder/domain"
-	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -58,7 +57,7 @@ func (db *Database) Connect() (*gorm.DB, error) {
 	case "sqlite3":
 		db.Db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	case "postgres":
-		db.Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	//	db.Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	default:
 		return nil, errors.New("Unsupported database type")
 	}
@@ -72,7 +71,7 @@ func (db *Database) Connect() (*gorm.DB, error) {
 	}
 
 	if db.AutoMigrateDb {
-		db.Db.AutoMigrate(&domain.Job{}, &domain.Video{})
+		db.Db.AutoMigrate(&domain.Job{}, &domain.Job{})
 	}
 	return db.Db, nil
 }
