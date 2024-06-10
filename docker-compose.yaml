@@ -5,3 +5,14 @@ services:
     build: .
     volumes:
       - .:/go/src
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    environment:
+        RABBITMQ_ERLANG_COOKIE: "secret"
+        RABBITMQ_DEFAULT_VHOST: "/"
+        RABBITMQ_DEFAULT_USER: "rabbitmq"
+        RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
