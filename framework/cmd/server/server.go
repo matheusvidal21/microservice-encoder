@@ -11,31 +11,35 @@ import (
 	"strconv"
 )
 
-var db database.Database
+var db *database.Database
 
 func init() {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
 	autoMigrateDb, err := strconv.ParseBool(os.Getenv("AUTO_MIGRATE_DB"))
 	if err != nil {
-		log.Fatalf("Error parsing AUTO_MIGRATE_DB")
+		log.Fatalf("Error parsing boolean env var")
 	}
 
 	debug, err := strconv.ParseBool(os.Getenv("DEBUG"))
 	if err != nil {
-		log.Fatalf("Error parsing DEBUG")
+		log.Fatalf("Error parsing boolean env var")
 	}
 
-	db.AutoMigrateDb = autoMigrateDb
-	db.Debug = debug
-	db.DsnTest = os.Getenv("DSN_TEST")
-	db.Dsn = os.Getenv("DSN")
-	db.DbTypeTest = os.Getenv("DB_TYPE_TEST")
-	db.DbType = os.Getenv("DB_TYPE")
-	db.Env = os.Getenv("ENV")
+	db = &database.Database{
+		AutoMigrateDb: autoMigrateDb,
+		Debug:         debug,
+		DsnTest:       os.Getenv("DSN_TEST"),
+		Dsn:           os.Getenv("DSN"),
+		DbTypeTest:    os.Getenv("DB_TYPE_TEST"),
+		DbType:        os.Getenv("DB_TYPE"),
+		Env:           os.Getenv("ENV"),
+	}
+	log.Printf("Database configuration: %+v\n", db)
+
 }
 
 func main() {
@@ -44,10 +48,9 @@ func main() {
 
 	dbConnection, err := db.Connect()
 	if err != nil {
-		log.Fatalf("Error connecting to the database")
+		log.Fatalf("Error connecting to the database, error: %v", err)
 	}
-	dbSql, _ := dbConnection.DB()
-	defer dbSql.Close()
+	defer dbConnection.Close()
 
 	rabbitMQ := queue.NewRabbitMQ()
 	ch := rabbitMQ.Connect()

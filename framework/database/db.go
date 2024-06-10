@@ -1,12 +1,10 @@
 package database
 
 import (
-	"errors"
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	_ "github.com/lib/pq"
 	"github.com/matheusvidal21/microservice-encoder/domain"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 )
 
@@ -42,36 +40,25 @@ func NewDatabaseTest() *gorm.DB {
 
 func (db *Database) Connect() (*gorm.DB, error) {
 	var err error
-	var dsn string
-	var dbType string
 
-	if db.Env == "test" {
-		dsn = db.DsnTest
-		dbType = db.DbTypeTest
+	if db.Env != "test" {
+		db.Db, err = gorm.Open(db.DbType, db.Dsn)
 	} else {
-		dsn = db.Dsn
-		dbType = db.DbType
+		db.Db, err = gorm.Open(db.DbTypeTest, db.DsnTest)
 	}
-
-	switch dbType {
-	case "sqlite3":
-		db.Db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	case "postgres":
-	//	db.Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	default:
-		return nil, errors.New("Unsupported database type")
-	}
+	log.Println(db.Db)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if db.Debug {
-		db.Db.Logger.LogMode(4)
+		db.Db.LogMode(true)
 	}
 
 	if db.AutoMigrateDb {
-		db.Db.AutoMigrate(&domain.Job{}, &domain.Job{})
+		db.Db.AutoMigrate(&domain.Video{}, &domain.Job{})
+		db.Db.Model(domain.Job{}).AddForeignKey("video_id", "videos (id)", "CASCADE", "CASCADE")
 	}
 	return db.Db, nil
 }

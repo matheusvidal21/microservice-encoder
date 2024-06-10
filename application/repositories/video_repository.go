@@ -3,8 +3,8 @@ package repositories
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	"github.com/matheusvidal21/microservice-encoder/domain"
-	"gorm.io/gorm"
 )
 
 type VideoRepository interface {

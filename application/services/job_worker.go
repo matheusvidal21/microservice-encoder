@@ -7,6 +7,7 @@ import (
 	"github.com/matheusvidal21/microservice-encoder/framework/utils"
 	"github.com/streadway/amqp"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -15,6 +16,8 @@ type JobWorkerResult struct {
 	Message *amqp.Delivery
 	Error   error
 }
+
+var Mutex = &sync.Mutex{}
 
 func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResult, jobService JobService, job domain.Job, workerId int) {
 	for message := range messageChannel {
@@ -25,13 +28,15 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 			continue
 		}
 
+		Mutex.Lock()
 		err = json.Unmarshal(message.Body, &jobService.VideoService.Video)
+		jobService.VideoService.Video.ID = uuid.New().String()
+		Mutex.Unlock()
+
 		if err != nil {
 			returnChan <- returnJobResult(domain.Job{}, message, err)
 			continue
 		}
-
-		jobService.VideoService.Video.ID = uuid.New().String()
 
 		err = jobService.VideoService.Video.Validate()
 		if err != nil {
@@ -39,7 +44,9 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 			continue
 		}
 
+		Mutex.Lock()
 		err = jobService.VideoService.InsertVideo()
+		Mutex.Unlock()
 		if err != nil {
 			returnChan <- returnJobResult(domain.Job{}, message, err)
 			continue
@@ -51,7 +58,9 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 		job.Status = STARTING
 		job.CreatedAt = time.Now()
 
+		Mutex.Lock()
 		_, err = jobService.JobRepository.Insert(&job)
+		Mutex.Unlock()
 		if err != nil {
 			returnChan <- returnJobResult(domain.Job{}, message, err)
 			continue

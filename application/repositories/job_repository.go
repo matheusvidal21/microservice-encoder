@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"fmt"
+	"github.com/jinzhu/gorm"
 	"github.com/matheusvidal21/microservice-encoder/domain"
-	"gorm.io/gorm"
 )
 
 type JobRepository interface {
