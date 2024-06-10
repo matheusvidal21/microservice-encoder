@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	STARTING    = "STARTING"
 	FAILED      = "FAILED"
 	DOWNLOADING = "DOWNLOADING"
 	FRAGMENTING = "FRAGMENTING"
@@ -28,7 +29,7 @@ func NewJobService() JobService {
 	return JobService{}
 }
 
-func (j *JobService) Start(job *domain.Job) error {
+func (j *JobService) Start() error {
 	err := j.changeJobStatus(DOWNLOADING)
 	if err != nil {
 		return j.failJob(err)
