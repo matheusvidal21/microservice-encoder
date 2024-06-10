@@ -53,19 +53,17 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 		go JobWorker(j.MessageChannel, j.JobReturnChannel, jobService, j.Job, qtdProcess)
 	}
 
-	go func() {
-		for jobResult := range j.JobReturnChannel {
-			if jobResult.Error != nil {
-				err = j.checkParseErrors(jobResult)
-			} else {
-				err = j.notifySuccess(jobResult, ch)
-			}
-
-			if err != nil {
-				jobResult.Message.Reject(false)
-			}
+	for jobResult := range j.JobReturnChannel {
+		if jobResult.Error != nil {
+			err = j.checkParseErrors(jobResult)
+		} else {
+			err = j.notifySuccess(jobResult, ch)
 		}
-	}()
+
+		if err != nil {
+			jobResult.Message.Reject(false)
+		}
+	}
 
 }
 
