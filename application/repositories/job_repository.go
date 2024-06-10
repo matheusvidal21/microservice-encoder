@@ -16,7 +16,7 @@ type JobRepositoryDb struct {
 	Db *gorm.DB
 }
 
-func NewJobRepository(db *gorm.DB) *JobRepositoryDb {
+func NewJobRepositoryDb(db *gorm.DB) *JobRepositoryDb {
 	return &JobRepositoryDb{Db: db}
 }
 

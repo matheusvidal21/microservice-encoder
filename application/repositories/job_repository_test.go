@@ -20,13 +20,13 @@ func TestJobRepositoryDb_Insert(t *testing.T) {
 	video.FilePath = "path"
 	video.CreatedAt = time.Now()
 
-	repo := repositories.NewVideoRepository(db)
+	repo := repositories.NewVideoRepositoryDb(db)
 	repo.Insert(video)
 
 	job, err := domain.NewJob("output", "Pending", video)
 	require.Nil(t, err)
 
-	repoJob := repositories.NewJobRepository(db)
+	repoJob := repositories.NewJobRepositoryDb(db)
 	repoJob.Insert(job)
 
 	j, err := repoJob.Find(job.ID)
@@ -46,13 +46,13 @@ func TestJobRepositoryDb_Update(t *testing.T) {
 	video.FilePath = "path"
 	video.CreatedAt = time.Now()
 
-	repo := repositories.NewVideoRepository(db)
+	repo := repositories.NewVideoRepositoryDb(db)
 	repo.Insert(video)
 
 	job, err := domain.NewJob("output", "Pending", video)
 	require.Nil(t, err)
 
-	repoJob := repositories.NewJobRepository(db)
+	repoJob := repositories.NewJobRepositoryDb(db)
 	repoJob.Insert(job)
 
 	job.Status = "Complete"
